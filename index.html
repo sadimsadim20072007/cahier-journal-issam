@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>مولّد المذكرة اليومية – المدرسة الرائدة</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#1d2433;--muted:#667085;--line:#d5dbe4;--acc:#0f766e;--accfg:#fff;--soft:#e6f3f1;--danger:#b42318;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11151b;--card:#1a2029;--text:#e8ecf2;--muted:#9aa4b2;--line:#2d3644;--acc:#2dd4bf;--accfg:#06201c;--soft:#16302d;--danger:#f97066}}
+:root[data-theme="dark"]{--bg:#11151b;--card:#1a2029;--text:#e8ecf2;--muted:#9aa4b2;--line:#2d3644;--acc:#2dd4bf;--accfg:#06201c;--soft:#16302d;--danger:#f97066}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Cairo,Tahoma,Arial,sans-serif;line-height:1.6}
+header.top{padding:18px 16px 6px;max-width:1400px;margin:auto}
+header.top h1{margin:0;font-size:1.4rem}
+header.top p{margin:2px 0 0;color:var(--muted);font-size:.9rem}
+.wrap{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:16px;padding:12px 16px 32px;max-width:1400px;margin:auto}
+@media(max-width:900px){.wrap{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{margin:0 0 10px;font-size:1.05rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:2px}
+input,textarea,select{width:100%;font:inherit;font-size:.92rem;color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+textarea{resize:vertical;min-height:54px}
+input:focus,textarea:focus,select:focus{outline:2px solid var(--acc);outline-offset:0}
+button{font:inherit;font-size:.88rem;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--text);padding:6px 11px}
+button.pri{background:var(--acc);color:var(--accfg);border-color:var(--acc);font-weight:600}
+button.del{color:var(--danger)}
+.bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.row{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;background:var(--soft)}
+.row .grid{margin-bottom:8px}
+.rowhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-weight:600;font-size:.9rem}
+.msg{font-size:.85rem;margin-top:6px;color:var(--muted)}
+.msg.err{color:var(--danger)}
+.note{font-size:.8rem;color:var(--muted)}
+.preview{position:sticky;top:8px;align-self:start}
+@media(max-width:900px){.preview{position:static}}
+.scroll{overflow-x:auto}
+.sheet{background:#fff;color:#111;border:1px solid #bbb;border-radius:6px;padding:14px;min-width:640px}
+.sheet h3{text-align:center;margin:0 0 2px;font-size:1.15rem}
+.sheet .sub{text-align:center;margin:0 0 10px;font-size:.85rem;color:#444}
+.sheet table{width:100%;border-collapse:collapse;font-size:.82rem}
+.sheet th,.sheet td{border:1px solid #444;padding:5px 7px;vertical-align:top;text-align:right}
+.sheet th{background:#e6efee;font-weight:700}
+.sheet td.k{background:#f1f4f4;font-weight:600;width:14%}
+.sheet .gap{height:10px}
+.lvl{font-size:.74rem;white-space:nowrap}
+@media print{
+@page{size:A4 landscape;margin:10mm}
+body{background:#fff}
+header.top,.ctrl,.noprint{display:none!important}
+.wrap{display:block;padding:0}
+.preview{position:static}
+.card.pv{border:0;padding:0;margin:0;background:#fff}
+.scroll{overflow:visible}
+.sheet{border:0;min-width:0;padding:0}
+}
+</style>
+</head>
+<body>
+<header class="top">
+<h1>مولّد المذكرة اليومية</h1>
+<p>المدرسة الرائدة – دعم التعلمات الأساس (TaRL)</p>
+</header>
+
+<div class="wrap">
+<div class="ctrl">
+
+<div class="card">
+<h2>1. معطيات الحصة</h2>
+<div class="grid" id="metaForm"></div>
+</div>
+
+<div class="card">
+<h2>2. استيراد من الأداة (JSON)</h2>
+<p class="note">الصق محتوى ملف <b>output/اسم_الملف.json</b> الناتج عن أداة التحليل، فتُملأ المراحل تلقائيًا من حقل المذكرة اليومية. لا يُضاف أي شيء من عندي.</p>
+<textarea id="jsonIn" rows="4" placeholder="الصق JSON هنا"></textarea>
+<div class="bar"><button class="pri" id="btnImport">استيراد</button></div>
+<div class="msg" id="impMsg"></div>
+</div>
+
+<div class="card">
+<h2>3. مراحل الحصة</h2>
+<div class="bar" style="margin:0 0 10px">
+<button id="pAr">قالب اللغة العربية</button>
+<button id="pMa">قالب الرياضيات</button>
+<button id="pClr" class="del">مسح الكل</button>
+</div>
+<p class="note">القوالب تملأ أسماء المراحل فقط، وهي <b>اقتراح ديداكتيكي</b> لتنظيم الحصة وليست من المصدر. عدّل الأسماء أو احذفها حسب ملفك.</p>
+<div id="rows"></div>
+<div class="bar"><button class="pri" id="addRow">+ إضافة مرحلة</button></div>
+</div>
+
+</div>
+
+<div class="preview">
+<div class="card pv">
+<div class="bar noprint" style="margin:0 0 10px">
+<button class="pri" id="btnPrint">طباعة / حفظ PDF</button>
+<button id="btnCopy">نسخ كنص</button>
+<button id="btnJson">نسخ JSON</button>
+</div>
+<div class="msg noprint" id="cpMsg"></div>
+<div class="scroll"><div class="sheet" id="sheet"></div></div>
+<p class="note noprint">الخلايا الفارغة تظهر بالرمز «—». للحصول على PDF اختر «حفظ بصيغة PDF» من نافذة الطباعة.</p>
+</div>
+</div>
+</div>
+
+<script>
+const LV=["","معطى صريح","استنتاج ديداكتيكي","اقتراح ديداكتيكي"];
+const MAP={source:LV[1],inference:LV[2],suggestion:LV[3]};
+const PRESETS={
+ ar:["افتتاح الحصة","أنشطة قرائية","أنشطة كتابية","اختتام الحصة"],
+ ma:["افتتاح الحصة / الحساب الذهني","مجال الأعداد","العمليات وحل المسائل","الممارسة المستقلة","اختتام الحصة"]
+};
+const META=[["school","المؤسسة"],["teacher","الأستاذ(ة)"],["cls","القسم"],["date","التاريخ"],["subject","المادة"],["grade","المستوى"],["title","عنوان الحصة"],["dur","المدة الإجمالية"]];
+const COLS=[["phase","المرحلة"],["duration","المدة"],["activities","الأنشطة"],["objectives","الأهداف"],["materials","الوسائل"],["evaluation","التقويم"],["level","المستوى"]];
+let S={meta:{},rows:[]};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const cell=v=>{v=String(v==null?"":v).trim();return v?esc(v).replace(/\n/g,"<br>"):"—"};
+const newRow=(p)=>Object.assign({phase:"",duration:"",activities:"",objectives:"",materials:"",evaluation:"",level:""},p||{});
+
+function save(){try{localStorage.setItem("memo-rd",JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem("memo-rd");if(r){const o=JSON.parse(r);if(o&&o.rows)S=o}}catch(e){}}
+
+function buildMeta(){
+ $("metaForm").innerHTML=META.map(([k,l])=>`<div><label>${l}</label><input data-m="${k}" value="${esc(S.meta[k]||"")}"></div>`).join("");
+}
+function buildRows(){
+ $("rows").innerHTML=S.rows.map((r,i)=>`
+ <div class="row">
+  <div class="rowhead"><span>المرحلة ${i+1}</span>
+   <span><button data-a="up" data-i="${i}">↑</button> <button data-a="dn" data-i="${i}">↓</button> <button class="del" data-a="rm" data-i="${i}">حذف</button></span></div>
+  <div class="grid">
+   <div><label>المرحلة</label><input data-i="${i}" data-k="phase" value="${esc(r.phase)}"></div>
+   <div><label>المدة</label><input data-i="${i}" data-k="duration" value="${esc(r.duration)}"></div>
+  </div>
+  <label>الأنشطة</label><textarea data-i="${i}" data-k="activities">${esc(r.activities)}</textarea>
+  <div class="grid" style="margin-top:8px">
+   <div><label>الأهداف</label><textarea data-i="${i}" data-k="objectives">${esc(r.objectives)}</textarea></div>
+   <div><label>الوسائل</label><textarea data-i="${i}" data-k="materials">${esc(r.materials)}</textarea></div>
+  </div>
+  <div class="grid" style="margin-top:8px">
+   <div><label>التقويم</label><textarea data-i="${i}" data-k="evaluation">${esc(r.evaluation)}</textarea></div>
+   <div><label>مستوى المعلومة</label><select data-i="${i}" data-k="level">${LV.map(v=>`<option value="${esc(v)}"${v===r.level?" selected":""}>${v||"— غير محدد —"}</option>`).join("")}</select></div>
+  </div>
+ </div>`).join("")||'<p class="note">لا توجد مراحل بعد. أضف مرحلة أو اختر قالبًا أو استورد JSON.</p>';
+}
+function buildSheet(){
+ const m=S.meta,g=k=>cell(m[k]);
+ const head=`<table>
+ <tr><td class="k">المؤسسة</td><td>${g("school")}</td><td class="k">الأستاذ(ة)</td><td>${g("teacher")}</td><td class="k">القسم</td><td>${g("cls")}</td></tr>
+ <tr><td class="k">المادة</td><td>${g("subject")}</td><td class="k">المستوى</td><td>${g("grade")}</td><td class="k">التاريخ</td><td>${g("date")}</td></tr>
+ <tr><td class="k">عنوان الحصة</td><td colspan="3">${g("title")}</td><td class="k">المدة الإجمالية</td><td>${g("dur")}</td></tr></table>`;
+ const body=S.rows.length?S.rows.map(r=>`<tr>${COLS.map(([k])=>k==="level"?`<td class="lvl">${cell(r[k])}</td>`:`<td>${cell(r[k])}</td>`).join("")}</tr>`).join(""):`<tr><td colspan="7" style="text-align:center">لا توجد مراحل</td></tr>`;
+ $("sheet").innerHTML=`<h3>المذكرة اليومية</h3><p class="sub">المدرسة الرائدة – دعم التعلمات الأساس (TaRL)</p>${head}<div class="gap"></div>
+ <table><thead><tr>${COLS.map(c=>`<th>${c[1]}</th>`).join("")}</tr></thead><tbody>${body}</tbody></table>`;
+}
+function refresh(full){if(full){buildMeta();buildRows()}buildSheet();save()}
+
+document.addEventListener("input",e=>{
+ const t=e.target;
+ if(t.dataset.m){S.meta[t.dataset.m]=t.value;buildSheet();save()}
+ else if(t.dataset.k){S.rows[+t.dataset.i][t.dataset.k]=t.value;buildSheet();save()}
+});
+$("rows").addEventListener("click",e=>{
+ const b=e.target.closest("button");if(!b)return;
+ const i=+b.dataset.i,a=b.dataset.a;
+ if(a==="rm")S.rows.splice(i,1);
+ else if(a==="up"&&i>0)[S.rows[i-1],S.rows[i]]=[S.rows[i],S.rows[i-1]];
+ else if(a==="dn"&&i<S.rows.length-1)[S.rows[i+1],S.rows[i]]=[S.rows[i],S.rows[i+1]];
+ refresh(true);
+});
+$("addRow").onclick=()=>{S.rows.push(newRow());refresh(true)};
+$("pAr").onclick=()=>{S.rows=PRESETS.ar.map(p=>newRow({phase:p}));if(!S.meta.subject)S.meta.subject="اللغة العربية";refresh(true)};
+$("pMa").onclick=()=>{S.rows=PRESETS.ma.map(p=>newRow({phase:p}));if(!S.meta.subject)S.meta.subject="الرياضيات";refresh(true)};
+$("pClr").onclick=()=>{S={meta:{},rows:[]};refresh(true)};
+
+$("btnImport").onclick=()=>{
+ const msg=$("impMsg");msg.className="msg";
+ try{
+  let raw=$("jsonIn").value.trim();
+  const a=raw.indexOf("{"),b=raw.lastIndexOf("}");
+  if(a<0||b<0)throw new Error("لم يُعثر على JSON");
+  const d=JSON.parse(raw.slice(a,b+1));
+  const mt=d.meta||{};
+  S.meta=Object.assign(S.meta,{subject:mt.subject||"",grade:mt.grade||"",title:mt.lesson_title||"",dur:mt.total_duration||""});
+  const log=Array.isArray(d.daily_log)?d.daily_log:[];
+  if(!log.length)throw new Error("حقل daily_log فارغ أو غير موجود");
+  S.rows=log.map(r=>newRow({phase:r.phase,duration:r.duration,activities:r.activities,objectives:r.objectives,materials:r.materials,evaluation:r.evaluation,level:MAP[r.level]||r.level||""}));
+  refresh(true);msg.textContent="تم الاستيراد: "+log.length+" مرحلة. راجع المحتوى وأكمل الحقول الفارغة.";
+ }catch(err){msg.className="msg err";msg.textContent="تعذّر الاستيراد: "+err.message}
+};
+
+function flash(t){const m=$("cpMsg");m.textContent=t;setTimeout(()=>m.textContent="",2500)}
+async function copy(txt,ok){
+ try{await navigator.clipboard.writeText(txt);flash(ok)}
+ catch(e){flash("تعذّر النسخ تلقائيًا، حدّد النص يدويًا")}
+}
+$("btnCopy").onclick=()=>{
+ const m=S.meta,v=x=>(String(x||"").trim()||"—").replace(/\n/g," ");
+ let t="المذكرة اليومية – المدرسة الرائدة\n";
+ META.forEach(([k,l])=>t+=l+": "+v(m[k])+"\n");
+ t+="\n"+COLS.map(c=>c[1]).join(" | ")+"\n";
+ S.rows.forEach(r=>t+=COLS.map(([k])=>v(r[k])).join(" | ")+"\n");
+ copy(t,"تم نسخ المذكرة كنص");
+};
+$("btnJson").onclick=()=>copy(JSON.stringify(S,null,2),"تم نسخ JSON");
+$("btnPrint").onclick=()=>window.print();
+
+load();
+if(!S.rows.length)S.rows=[newRow()];
+refresh(true);
+</script>
+</body>
+</html>
